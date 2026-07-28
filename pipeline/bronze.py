@@ -10,7 +10,7 @@ def main():
         #Fase ler o csv onde estao as informacoes originais
         df_bronze = ler_csv(spark)
         #Ingestao dos dados brutos do arquivo csv e armazena-los em uma tabela delta, preservando assim o conteudo original dos dados para o processamento posterior.
-        caminho = f"retail_sales.bronze.sales_raw"
+        caminho = f"retail_sales.bronze.sales_brute"
         salvar_em_delta(df_bronze, caminho)
         registrar_info(f"Camada bronze finalizada com {CorTerminal.VERDE}sucesso!{CorTerminal.RESET}")
     except Exception as e:
