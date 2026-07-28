@@ -1,14 +1,18 @@
 from pyspark.sql import DataFrame
-from pyspark.sql import SparkSession
-
+from monitoramento.monitoramento import registrar_info, registrar_warning, registrar_error
 
 def ler_csv(spark) -> DataFrame:
     """Lê o arquivo CSV da camada Bronze e retorna um DataFrame."""
-    df = spark.read.format("csv").option("header", "true").option("inferSchema", True).load("/Volumes/retail_sales/bronze/volume_raw/sales_data_sample-selected-columns(1).csv")
+    registrar_info("Iniciando leitura do arquivo csv")
+    
+    arquivo = f"/Volumes/retail_sales/bronze/volume_raw/sales_data_sample-selected-columns(1).csv"
+    df = spark.read.format("csv").option("header", "true").option("inferSchema", True).load(arquivo)
+    registrar_info(f"Arquivo csv carregado com sucesso e possui {df.count()} registros")
+    
     return df
 
-def salvar_em_delta(df: DataFrame, caminho: str):
+def salvar_em_delta(df: DataFrame, caminho: str) -> None:
     df.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable(caminho)
-    print(f"Tabela {caminho} salva com sucesso")
+    registrar_info(f"Tabela delta [sales_raw] salva e criada com sucesso")
 
 
