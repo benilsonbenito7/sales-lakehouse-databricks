@@ -70,13 +70,17 @@ def gravar_dados_silver(df: DataFrame) ->None:
     tabela = f"retail_sales.silver.clean_sales"
 
     if not spark.catalog.tableExists(tabela):
+        registrar_info(f"Tabela [{tabela}] não encontrada. Criando primeira versão da camada Silver.")
         df.write.format("delta").mode("overwrite").saveAsTable(tabela)
+        registrar_info(f"Tabela [{tabela}] criada com sucesso.")
 
     else:
+        registrar_info(f"Tabela [{tabela}] encontrada. Iniciando carga incremental (MERGE).")
         if df.schema != spark.table(tabela).schema:
             registrar_error(f"Erro schema alterado -> retornou um schema diferente do esperado.")
         
         tabela_delta = DeltaTable.forName(spark, tabela)
+        registrar_info("Executando MERGE entre os dados de origem e a tabela Silver.")
 
         tabela_delta.alias("destino") \
             .merge(
@@ -86,7 +90,8 @@ def gravar_dados_silver(df: DataFrame) ->None:
             .whenMatchedUpdateAll() \
             .whenNotMatchedInsertAll() \
             .execute()
-        registrar_info(f"tabela {tabela} gravado com {CorTerminal.VERDE}sucesso{CorTerminal.RESET}")
+        registrar_info(f"Carga incremental concluída com sucesso na tabela [{tabela}].")
+        
 
     
             

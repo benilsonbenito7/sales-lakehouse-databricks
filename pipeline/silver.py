@@ -1,10 +1,12 @@
 from silver_utils import *
 from pyspark.sql import SparkSession
 from monitoramento.monitoramento import *
+import time
 
 def main():
     try:
-        registrar_info(f"Camada Silver Inicializando....")
+        registrar_info(f"Iniciando camada Silver")
+        inicio = time.perf_counter()
         #ler os dados da tabela delta da bronze
         registrar_info(f"Camada Silver Lendo dados da tabela bronze....")
         df_bronze = spark.read.table("retail_sales.bronze.sales_brute")
@@ -24,8 +26,8 @@ def main():
         #Fase 9: gravar dados na tabela silver
         df_silver = df_renomeados
         gravar_dados_silver(df_silver)
-        
-
+        fim = time.perf_counter()
+        registrar_info(f"{CorTerminal.VERDE}Camada Silver Finalizado com sucesso!{CorTerminal.RESET} Tempo de execução: {CorTerminal.VERDE}{fim - inicio:.2f}{CorTerminal.RESET}")
     except Exception as e:
         registrar_error(f"Erro: {CorTerminal.VERMELHO}{e}{CorTerminal.RESET}")
 
